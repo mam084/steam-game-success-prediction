@@ -63,6 +63,7 @@ Python · pandas · NumPy · scikit-learn (`Pipeline`, `ColumnTransformer`, `Tfi
 |---|---|
 | `steam_success_prediction.ipynb` | Full pipeline: loading, EDA, feature engineering, modeling, evaluation, error analysis |
 | `workbook.html` | Exported HTML version of the notebook, viewable without running anything |
+| `requirements.txt` | Python dependencies |
 
 ## Limitations and Next Steps
 
@@ -74,11 +75,11 @@ Python · pandas · NumPy · scikit-learn (`Pipeline`, `ColumnTransformer`, `Tfi
 ## How to Run
 
 ```bash
-pip install pandas numpy scikit-learn matplotlib jupyter
+pip install -r requirements.txt
 jupyter notebook steam_success_prediction.ipynb
 ```
 
-Place `steam_games.json` and `australian_user_reviews.json` in the project folder, or update `GAMES_PATH` and `REVIEWS_PATH` at the top of the notebook.
+Download `steam_games.json` and `australian_user_reviews.json` from [Julian McAuley's recommender systems datasets](https://cseweb.ucsd.edu/~jmcauley/datasets.html#steam_data) then unzip them (`gunzip *.json.gz`) into the project folder, or update `GAMES_PATH` and `REVIEWS_PATH` at the top of the notebook.
 
 ## Acknowledgments
 

@@ -7332,7 +7332,12 @@ a.anchor-link {
     if (!diagrams.length) {
       return;
     }
-    const mermaid = (await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs")).default;
+    const mermaid = (await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.0/mermaid.esm.min.mjs")).default;
+    const elkUrl = "https://cdnjs.cloudflare.com/ajax/libs/mermaid-layout-elk/0.1.9/mermaid-layout-elk.esm.min.mjs";
+    if(elkUrl) {
+      const elkLayouts = (await import(elkUrl)).default;
+      mermaid.registerLayoutLoaders(elkLayouts);
+    }
     const parser = new DOMParser();
 
     mermaid.initialize({
@@ -7429,7 +7434,8 @@ a.anchor-link {
      * Post-process to ensure mermaid diagrams contain only valid SVG and XHTML.
      */
     function cleanMermaidSvg(svg) {
-      return svg.replace(RE_VOID_ELEMENT, replaceVoidElement);
+      svg = svg.replace(RE_VOID_ELEMENT, replaceVoidElement);
+      return `${SVG_XML_HEADER}${svg}`;
     }
 
 
@@ -7455,6 +7461,285 @@ a.anchor-link {
       }
       return `<${tag} ${rest}>`;
     }
+
+
+  /**
+   * Named HTML entities with their decimal equivalent codes.
+   *
+   * @see https://www.w3.org/TR/WD-html40-970708/sgml/entities.html
+   * */
+  const HTML_ENTITIES = `<!ENTITY Aacute "&#193;">
+<!ENTITY aacute "&#225;">
+<!ENTITY Acirc "&#194;">
+<!ENTITY acirc "&#226;">
+<!ENTITY acute "&#180;">
+<!ENTITY AElig "&#198;">
+<!ENTITY aelig "&#230;">
+<!ENTITY Agrave "&#192;">
+<!ENTITY agrave "&#224;">
+<!ENTITY alefsym "&#8501;">
+<!ENTITY Alpha "&#913;">
+<!ENTITY alpha "&#945;">
+<!ENTITY amp "&#38;">
+<!ENTITY and "&#8869;">
+<!ENTITY ang "&#8736;">
+<!ENTITY Aring "&#197;">
+<!ENTITY aring "&#229;">
+<!ENTITY asymp "&#8776;">
+<!ENTITY Atilde "&#195;">
+<!ENTITY atilde "&#227;">
+<!ENTITY Auml "&#196;">
+<!ENTITY auml "&#228;">
+<!ENTITY bdquo "&#8222;">
+<!ENTITY Beta "&#914;">
+<!ENTITY beta "&#946;">
+<!ENTITY brvbar "&#166;">
+<!ENTITY bull "&#8226;">
+<!ENTITY cap "&#8745;">
+<!ENTITY Ccedil "&#199;">
+<!ENTITY ccedil "&#231;">
+<!ENTITY cedil "&#184;">
+<!ENTITY cent "&#162;">
+<!ENTITY Chi "&#935;">
+<!ENTITY chi "&#967;">
+<!ENTITY circ "&#710;">
+<!ENTITY clubs "&#9827;">
+<!ENTITY cong "&#8773;">
+<!ENTITY copy "&#169;">
+<!ENTITY crarr "&#8629;">
+<!ENTITY cup "&#8746;">
+<!ENTITY curren "&#164;">
+<!ENTITY dagger "&#8224;">
+<!ENTITY Dagger "&#8225;">
+<!ENTITY darr "&#8595;">
+<!ENTITY dArr "&#8659;">
+<!ENTITY deg "&#176;">
+<!ENTITY Delta "&#916;">
+<!ENTITY delta "&#948;">
+<!ENTITY diams "&#9830;">
+<!ENTITY divide "&#247;">
+<!ENTITY Eacute "&#201;">
+<!ENTITY eacute "&#233;">
+<!ENTITY Ecirc "&#202;">
+<!ENTITY ecirc "&#234;">
+<!ENTITY Egrave "&#200;">
+<!ENTITY egrave "&#232;">
+<!ENTITY empty "&#8709;">
+<!ENTITY emsp "&#8195;">
+<!ENTITY ensp "&#8194;">
+<!ENTITY epsilon "&#949;">
+<!ENTITY Epsilon "&#917;">
+<!ENTITY equiv "&#8801;">
+<!ENTITY Eta "&#919;">
+<!ENTITY eta "&#951;">
+<!ENTITY ETH "&#208;">
+<!ENTITY eth "&#240;">
+<!ENTITY Euml "&#203;">
+<!ENTITY euml "&#235;">
+<!ENTITY exist "&#8707;">
+<!ENTITY fnof "&#402;">
+<!ENTITY forall "&#8704;">
+<!ENTITY frac12 "&#189;">
+<!ENTITY frac14 "&#188;">
+<!ENTITY frac34 "&#190;">
+<!ENTITY frasl "&#8260;">
+<!ENTITY Gamma "&#915;">
+<!ENTITY gamma "&#947;">
+<!ENTITY ge "&#8805;">
+<!ENTITY gt "&#62;">
+<!ENTITY harr "&#8596;">
+<!ENTITY hArr "&#8660;">
+<!ENTITY hearts "&#9829;">
+<!ENTITY hellip "&#8230;">
+<!ENTITY Iacute "&#205;">
+<!ENTITY iacute "&#237;">
+<!ENTITY Icirc "&#206;">
+<!ENTITY icirc "&#238;">
+<!ENTITY iexcl "&#161;">
+<!ENTITY Igrave "&#204;">
+<!ENTITY igrave "&#236;">
+<!ENTITY image "&#8465;">
+<!ENTITY infin "&#8734;">
+<!ENTITY int "&#8747;">
+<!ENTITY Iota "&#921;">
+<!ENTITY iota "&#953;">
+<!ENTITY iquest "&#191;">
+<!ENTITY isin "&#8712;">
+<!ENTITY Iuml "&#207;">
+<!ENTITY iuml "&#239;">
+<!ENTITY Kappa "&#922;">
+<!ENTITY kappa "&#954;">
+<!ENTITY Lambda "&#923;">
+<!ENTITY lambda "&#955;">
+<!ENTITY lang "&#9001;">
+<!ENTITY laquo "&#171;">
+<!ENTITY larr "&#8592;">
+<!ENTITY lArr "&#8656;">
+<!ENTITY lceil "&#8968;">
+<!ENTITY ldquo "&#8220;">
+<!ENTITY le "&#8804;">
+<!ENTITY lfloor "&#8970;">
+<!ENTITY lowast "&#8727;">
+<!ENTITY loz "&#9674;">
+<!ENTITY lrm "&#8206;">
+<!ENTITY lsaquo "&#8249;">
+<!ENTITY lsquo "&#8216;">
+<!ENTITY lt "&#60;">
+<!ENTITY macr "&#175;">
+<!ENTITY mdash "&#8212;">
+<!ENTITY micro "&#181;">
+<!ENTITY middot "&#183;">
+<!ENTITY minus "&#8722;">
+<!ENTITY Mu "&#924;">
+<!ENTITY mu "&#956;">
+<!ENTITY nabla "&#8711;">
+<!ENTITY nbsp "&#160;">
+<!ENTITY ndash "&#8211;">
+<!ENTITY ne "&#8800;">
+<!ENTITY ni "&#8715;">
+<!ENTITY not "&#172;">
+<!ENTITY notin "&#8713;">
+<!ENTITY nsub "&#8836;">
+<!ENTITY Ntilde "&#209;">
+<!ENTITY ntilde "&#241;">
+<!ENTITY Nu "&#925;">
+<!ENTITY nu "&#957;">
+<!ENTITY Oacute "&#211;">
+<!ENTITY oacute "&#243;">
+<!ENTITY Ocirc "&#212;">
+<!ENTITY ocirc "&#244;">
+<!ENTITY OElig "&#338;">
+<!ENTITY oelig "&#339;">
+<!ENTITY Ograve "&#210;">
+<!ENTITY ograve "&#242;">
+<!ENTITY oline "&#8254;">
+<!ENTITY Omega "&#937;">
+<!ENTITY omega "&#969;">
+<!ENTITY Omicron "&#927;">
+<!ENTITY omicron "&#959;">
+<!ENTITY oplus "&#8853;">
+<!ENTITY or "&#8870;">
+<!ENTITY ordf "&#170;">
+<!ENTITY ordm "&#186;">
+<!ENTITY Oslash "&#216;">
+<!ENTITY oslash "&#248;">
+<!ENTITY Otilde "&#213;">
+<!ENTITY otilde "&#245;">
+<!ENTITY otimes "&#8855;">
+<!ENTITY Ouml "&#214;">
+<!ENTITY ouml "&#246;">
+<!ENTITY para "&#182;">
+<!ENTITY part "&#8706;">
+<!ENTITY permil "&#8240;">
+<!ENTITY perp "&#8869;">
+<!ENTITY Phi "&#934;">
+<!ENTITY phi "&#966;">
+<!ENTITY Pi "&#928;">
+<!ENTITY pi "&#960;">
+<!ENTITY piv "&#982;">
+<!ENTITY plusmn "&#177;">
+<!ENTITY pound "&#163;">
+<!ENTITY prime "&#8242;">
+<!ENTITY Prime "&#8243;">
+<!ENTITY prod "&#8719;">
+<!ENTITY prop "&#8733;">
+<!ENTITY Psi "&#936;">
+<!ENTITY psi "&#968;">
+<!ENTITY quot "&#34;">
+<!ENTITY radic "&#8730;">
+<!ENTITY rang "&#9002;">
+<!ENTITY raquo "&#187;">
+<!ENTITY rarr "&#8594;">
+<!ENTITY rArr "&#8658;">
+<!ENTITY rceil "&#8969;">
+<!ENTITY rdquo "&#8221;">
+<!ENTITY real "&#8476;">
+<!ENTITY reg "&#174;">
+<!ENTITY rfloor "&#8971;">
+<!ENTITY Rho "&#929;">
+<!ENTITY rho "&#961;">
+<!ENTITY rlm "&#8207;">
+<!ENTITY rsaquo "&#8250;">
+<!ENTITY rsquo "&#8217;">
+<!ENTITY sbquo "&#8218;">
+<!ENTITY Scaron "&#352;">
+<!ENTITY scaron "&#353;">
+<!ENTITY sdot "&#8901;">
+<!ENTITY sect "&#167;">
+<!ENTITY shy "&#173;">
+<!ENTITY Sigma "&#931;">
+<!ENTITY sigma "&#963;">
+<!ENTITY sigmaf "&#962;">
+<!ENTITY sim "&#8764;">
+<!ENTITY spades "&#9824;">
+<!ENTITY sub "&#8834;">
+<!ENTITY sube "&#8838;">
+<!ENTITY sum "&#8721;">
+<!ENTITY sup "&#8835;">
+<!ENTITY sup1 "&#185;">
+<!ENTITY sup2 "&#178;">
+<!ENTITY sup3 "&#179;">
+<!ENTITY supe "&#8839;">
+<!ENTITY szlig "&#223;">
+<!ENTITY Tau "&#932;">
+<!ENTITY tau "&#964;">
+<!ENTITY there4 "&#8756;">
+<!ENTITY Theta "&#920;">
+<!ENTITY theta "&#952;">
+<!ENTITY thetasym "&#977;">
+<!ENTITY thinsp "&#8201;">
+<!ENTITY THORN "&#222;">
+<!ENTITY thorn "&#254;">
+<!ENTITY tilde "&#732;">
+<!ENTITY times "&#215;">
+<!ENTITY trade "&#8482;">
+<!ENTITY Uacute "&#218;">
+<!ENTITY uacute "&#250;">
+<!ENTITY uarr "&#8593;">
+<!ENTITY uArr "&#8657;">
+<!ENTITY Ucirc "&#219;">
+<!ENTITY ucirc "&#251;">
+<!ENTITY Ugrave "&#217;">
+<!ENTITY ugrave "&#249;">
+<!ENTITY uml "&#168;">
+<!ENTITY upsih "&#978;">
+<!ENTITY Upsilon "&#933;">
+<!ENTITY upsilon "&#965;">
+<!ENTITY Uuml "&#220;">
+<!ENTITY uuml "&#252;">
+<!ENTITY weierp "&#8472;">
+<!ENTITY Xi "&#926;">
+<!ENTITY xi "&#958;">
+<!ENTITY Yacute "&#221;">
+<!ENTITY yacute "&#253;">
+<!ENTITY yen "&#165;">
+<!ENTITY Yuml "&#376;">
+<!ENTITY yuml "&#255;">
+<!ENTITY Zeta "&#918;">
+<!ENTITY zeta "&#950;">
+<!ENTITY zwj "&#8205;">
+<!ENTITY zwnj "&#8204;">`.replace(/\n/g, ' ');
+
+  /**
+   * A reasonably strict xml declaration.
+   */
+  const XML_DECL = '<?xml version="1.0" standalone="no"?>';
+
+  /**
+   * The beginning of the XML doctype declaration.
+   */
+  const DOCTYPE_START = `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [`;
+
+  /**
+   * The end of the XML docype declaration.
+   */
+  const DOCTYPE_END = ']>';
+
+  /**
+   * A full header for an SVG XML document.
+   */
+  const SVG_XML_HEADER = `${XML_DECL}
+    ${DOCTYPE_START}${HTML_ENTITIES}${DOCTYPE_END}`;
 
     void Promise.all([...diagrams].map(renderOneMarmaid));
   });
@@ -7517,35 +7802,27 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Steam-Game-Success-Prediction">Steam Game Success Prediction<a class="anchor-link" href="#Steam-Game-Success-Prediction">¶</a></h1><p>This notebook builds and evaluates models to predict whether a Steam game will be <strong>successful</strong> based on a mixture of
-game metadata and user review signals.</p>
-<p>Concretely, we combine:</p>
+<h1 id="Steam-Game-Success-Prediction">Steam Game Success Prediction<a class="anchor-link" href="#Steam-Game-Success-Prediction">¶</a></h1><p>Can we predict whether players will like a Steam game <strong>before anyone reviews it</strong>?</p>
+<p>This notebook trains classifiers to predict whether a game will be well received using only information available at launch: its genres, tags, feature specs, title, and release year. Player reviews are used to <em>define</em> the success label, but review-derived features are deliberately kept out of the model's inputs. Including them would leak the label into the features and make the task unrealistic, since a studio or storefront would want this signal before reviews exist.</p>
+<p><strong>Data</strong></p>
 <ul>
-<li><code>steam_games.json</code>: one row per Steam title with basic metadata such as name, price, genres, categories, and release date.</li>
-<li><code>australian_user_reviews.json</code>: per–user reviews, which we flatten into one row per <code>(user, game)</code> pair containing
-a binary recommendation flag and a short text review.</li>
+<li><code>steam_games.json</code>: one row per Steam title with metadata such as title, genres, tags, specs, price, and release date</li>
+<li><code>australian_user_reviews.json</code>: per-user reviews, flattened into one row per review with a recommend / not-recommend flag</li>
 </ul>
-<p>Our <strong>predictive task</strong> is a binary classification problem:</p>
-<ul>
-<li><strong>Input features:</strong> simple, tabular descriptors of each game (release year, price, number of genres, review counts,
-share of positive reviews, log–transformed review count, etc.).</li>
-<li><strong>Target label:</strong> whether a game should be considered “successful” according to its review history (defined later).</li>
-<li><strong>Goal:</strong> learn a model that can predict success for new games using only these features.</li>
-</ul>
-<p>The workflow of the notebook mirrors the structure expected for the Assignment 2 project:</p>
+<p><strong>Workflow</strong></p>
 <ol>
-<li>Data loading and basic cleaning</li>
-<li>Lightweight exploratory data analysis (EDA)</li>
-<li>Feature engineering at the game level</li>
-<li>Defining a success label</li>
+<li>Data loading and cleaning</li>
+<li>Exploratory data analysis</li>
+<li>Feature engineering (launch-time features only)</li>
+<li>Defining the success label</li>
 <li>Train / validation / test split</li>
-<li>Baseline models (majority class, logistic regression)</li>
-<li>Improved models (tree–based ensembles with modest hyperparameter tuning)</li>
-<li>Evaluation and model selection</li>
-<li>Error analysis and qualitative inspection of predictions</li>
+<li>Baselines (majority class, logistic regression)</li>
+<li>Tuned tree ensembles (random forest, gradient boosting)</li>
+<li>Final model on the held-out test set</li>
+<li>Data source and related work</li>
+<li>Error analysis</li>
 </ol>
-<p>Throughout, the focus is on making the code and narrative easy to follow so that peer graders can read the notebook
-without needing to re–run any cells.</p>
+<p><em>Built for DSC 256 in the UC San Diego M.S. in Data Science program.</em></p>
 </div>
 </div>
 </div>
@@ -7817,20 +8094,13 @@ Name: count, dtype: int64
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="3.-Feature-engineering-(per%E2%80%93game-aggregates)">3. Feature engineering (per–game aggregates)<a class="anchor-link" href="#3.-Feature-engineering-(per%E2%80%93game-aggregates)">¶</a></h2><p>Our raw data lives at the <strong>review level</strong>: we have many rows per game, one per user review. For the prediction task we
-want <strong>one feature vector per game</strong>, so we aggregate reviews into game‑level statistics.</p>
-<p>From the <code>recommend</code> flag and other review fields we construct:</p>
+<h2 id="3.-Feature-engineering">3. Feature engineering<a class="anchor-link" href="#3.-Feature-engineering">¶</a></h2><h3 id="3.0-Review-aggregates-(used-for-the-label-only)">3.0 Review aggregates (used for the label only)<a class="anchor-link" href="#3.0-Review-aggregates-(used-for-the-label-only)">¶</a></h3><p>The raw review data has one row per review, so we first aggregate to one row per game:</p>
 <ul>
-<li><code>n_reviews</code>: number of reviews a game has received.</li>
-<li><code>n_pos</code>: number of reviews that recommend the game.</li>
-<li><code>pos_share</code>: fraction of reviews that recommend the game (<code>n_pos / n_reviews</code>).</li>
-<li><code>log_n_reviews</code>: a log‑transformed version of the review count, which compresses the heavy tail of extremely popular
-games while still distinguishing between, say, 10 and 1000 reviews.</li>
+<li><code>n_reviews</code>: number of reviews the game received</li>
+<li><code>pos_share</code>: fraction of those reviews that recommend the game</li>
+<li><code>log_n_reviews</code>: log-transformed review count</li>
 </ul>
-<p>These aggregates capture both <strong>popularity</strong> (how many people reviewed the game) and <strong>satisfaction</strong> (how many of
-those reviews were positive). We keep the implementation robust by checking which columns are available in the dataset
-(e.g., different versions may store recommendation flags under slightly different names) and gracefully skipping
-missing ones.</p>
+<p>These aggregates are used to <strong>build the success label</strong> in the next cell. They are dropped from the model inputs in section 3.2, because a model that sees the share of positive reviews is effectively being handed the answer.</p>
 </div>
 </div>
 </div>
@@ -7839,14 +8109,12 @@ missing ones.</p>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">POS_THRESHOLD</span> <span class="o">=</span> <span class="mf">0.75</span>
 <span class="n">MIN_REVIEWS_FOR_LABEL</span> <span class="o">=</span> <span class="mi">2</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Reviews shape:"</span><span class="p">,</span> <span class="n">reviews_df</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Review columns:"</span><span class="p">,</span> <span class="n">reviews_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
 
 <span class="n">game_review_features</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">reviews_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"item_id"</span><span class="p">)</span>
@@ -7861,6 +8129,7 @@ missing ones.</p>
 <span class="n">game_review_features</span><span class="p">[</span><span class="s2">"pos_share"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">game_review_features</span><span class="p">[</span><span class="s2">"n_pos"</span><span class="p">]</span> <span class="o">/</span> <span class="n">game_review_features</span><span class="p">[</span><span class="s2">"n_reviews"</span><span class="p">]</span>
 <span class="p">)</span>
+
 
 <span class="c1"># Binary success label from pos_share</span>
 <span class="n">game_review_features</span><span class="p">[</span><span class="s2">"success"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -7923,15 +8192,13 @@ max    3759.000000       8.232174     1.000000     1.000000
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3.1-Basic-game-metadata-features">3.1 Basic game metadata features<a class="anchor-link" href="#3.1-Basic-game-metadata-features">¶</a></h3><p>In addition to review‑based signals, we extract a small set of tabular features directly from <code>games_df</code>, including:</p>
+<h3 id="3.1-Launch-time-game-features">3.1 Launch-time game features<a class="anchor-link" href="#3.1-Launch-time-game-features">¶</a></h3><p>These are the features the model actually uses, all available before a game has any reviews:</p>
 <ul>
-<li>Price of the game.</li>
-<li>Release year (parsed from the release date string, when available).</li>
-<li>Simple counts such as the number of genres or categories.</li>
+<li><strong>Release year</strong>, parsed from inconsistent date strings</li>
+<li><strong>Number of genres</strong> and <strong>number of tags</strong> (falling back to specs when tags are missing)</li>
+<li><strong><code>text_features</code></strong>: genres, tags, specs, and title combined into one string, later vectorized with TF-IDF</li>
 </ul>
-<p>These features provide coarse information about a game’s <strong>age</strong>, <strong>positioning</strong>, and <strong>scope</strong>. They are intentionally
-kept simple so that the overall pipeline remains easy to interpret and fast to run; in a more ambitious project one
-could add richer encodings of genres, tags, or developer / publisher information.</p>
+<p>Price is parsed here but not used in the final model.</p>
 </div>
 </div>
 </div>
@@ -8133,16 +8400,7 @@ could add richer encodings of genres, tags, or developer / publisher information
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3.2-Merge-review-aggregates-with-metadata">3.2 Merge review aggregates with metadata<a class="anchor-link" href="#3.2-Merge-review-aggregates-with-metadata">¶</a></h3><p>Once we have per‑game aggregates from the reviews and basic metadata from the games table, we join them into a single
-modeling table:</p>
-<ul>
-<li>The join key is <code>item_id</code>, which uniquely identifies each game in both DataFrames.</li>
-<li>We use an inner join to keep only games that appear in both the metadata and review tables.</li>
-<li>Any rows with missing values in the key engineered features are handled by the downstream preprocessing pipeline
-(e.g., imputation for numeric columns).</li>
-</ul>
-<p>The resulting <code>data</code> DataFrame contains one row per game and the full set of input features that will be fed to our
-models.</p>
+<h3 id="3.2-Merge-and-remove-review-derived-columns">3.2 Merge and remove review-derived columns<a class="anchor-link" href="#3.2-Merge-and-remove-review-derived-columns">¶</a></h3><p>We inner-join the review aggregates and the metadata on <code>item_id</code>, keeping only games that appear in both tables. We then drop every review-derived column (<code>n_reviews</code>, <code>log_n_reviews</code>, <code>pos_share</code>) from the modeling table, leaving only launch-time features and the <code>success</code> label.</p>
 </div>
 </div>
 </div>
@@ -8286,17 +8544,12 @@ models.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="4.-Define-the-target:-what-is-a-%22successful%22-game?">4. Define the target: what is a "successful" game?<a class="anchor-link" href="#4.-Define-the-target:-what-is-a-%22successful%22-game?">¶</a></h2><p>The dataset does not come with a pre‑defined binary label for “success”, so we must construct one from the review
-history. In this notebook we adopt the following simple rule:</p>
-<p>A game is labeled <strong>successful</strong> (<code>success = 1</code>) if:</p>
+<h2 id="4.-Define-the-target:-what-is-a-%22successful%22-game?">4. Define the target: what is a "successful" game?<a class="anchor-link" href="#4.-Define-the-target:-what-is-a-%22successful%22-game?">¶</a></h2><p>The dataset has no success label, so we construct one from review history (computed in section 3.0). A game is labeled <strong>successful</strong> (<code>success = 1</code>) if:</p>
 <ul>
-<li>it has at least <code>MIN_REVIEWS_FOR_LABEL</code> reviews, and</li>
-<li>its share of positive reviews <code>pos_share</code> is at least <code>POS_THRESHOLD = 0.75</code>.</li>
+<li>it has at least <code>MIN_REVIEWS_FOR_LABEL = 2</code> reviews, and</li>
+<li>at least <code>POS_THRESHOLD = 75%</code> of its reviews recommend it.</li>
 </ul>
-<p>Games that do not meet these conditions are labeled <code>success = 0</code>.</p>
-<p>This definition treats “success” as <strong>high player satisfaction</strong> (according to reviews) rather than, say, sales volume.
-The exact thresholds are of course subjective; for your own project you are encouraged to experiment with alternative
-choices (e.g., higher review thresholds to focus on well‑known games) and justify them in your writeup.</p>
+<p>This treats success as <strong>player satisfaction</strong> rather than sales. The thresholds are a judgment call: half the games have only one or two reviews, so a higher minimum would give cleaner labels at the cost of a much smaller dataset.</p>
 </div>
 </div>
 </div>
@@ -8307,16 +8560,12 @@ choices (e.g., higher review thresholds to focus on well‑known games) and just
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.-Train-/-validation-/-test-split">5. Train / validation / test split<a class="anchor-link" href="#5.-Train-/-validation-/-test-split">¶</a></h2><p>To evaluate our models in a principled way we split the data into three disjoint sets:</p>
+<h2 id="5.-Train-/-validation-/-test-split">5. Train / validation / test split<a class="anchor-link" href="#5.-Train-/-validation-/-test-split">¶</a></h2><p>We use a stratified <strong>80 / 10 / 10</strong> split:</p>
 <ol>
-<li>A <strong>training set</strong> used to fit model parameters.</li>
-<li>A <strong>validation set</strong> used for model and hyperparameter selection.</li>
-<li>A <strong>test set</strong> held out until the very end to estimate generalization performance.</li>
+<li>Hold out 20% of games, stratified by label.</li>
+<li>Split that 20% in half into a <strong>validation set</strong> (for comparing models and tuning) and a <strong>test set</strong> (touched once, at the very end).</li>
 </ol>
-<p>In code we first split off a test set (20% of the data), then split the remaining 80% into a training and validation
-portion. This mirrors the standard experimental protocol for supervised learning. As an extension, one could replace
-the single validation split with cross‑validation, but here a fixed split keeps the notebook concise and easier to
-follow.</p>
+<p>Stratifying keeps the share of successful games consistent across all three sets.</p>
 </div>
 </div>
 </div>
@@ -8394,16 +8643,11 @@ Test size: 320
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="6.-Baseline-models">6. Baseline models<a class="anchor-link" href="#6.-Baseline-models">¶</a></h2><p>Before trying more sophisticated models it is important to establish simple baselines. We consider two:</p>
+<h2 id="6.-Baseline-models">6. Baseline models<a class="anchor-link" href="#6.-Baseline-models">¶</a></h2><p>Two baselines set the bar for the tuned models:</p>
 <ol>
-<li><strong>Majority‑class baseline:</strong> always predict the most frequent label in the training data.</li>
-<li><strong>Logistic regression:</strong> a linear classifier trained on standardized numeric features (and simple encodings of
-categorical ones, if present).</li>
+<li><strong>Majority class:</strong> always predict the most common label. Any useful model has to beat this.</li>
+<li><strong>Logistic regression</strong> on scaled numeric features plus TF-IDF text features, with balanced class weights. This is a strong baseline for sparse, high-dimensional text features.</li>
 </ol>
-<p>The majority baseline gives us a reference point for what performance would look like if we ignored all features and
-simply guessed the dominant class. Logistic regression introduces a modest amount of modeling capacity while remaining
-easy to interpret and fast to train. Our improved models should <strong>significantly outperform</strong> both of these baselines on
-the validation set.</p>
 </div>
 </div>
 </div>
@@ -8600,13 +8844,7 @@ weighted avg       0.75      0.74      0.74       319
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="7.-Improved-models">7. Improved models<a class="anchor-link" href="#7.-Improved-models">¶</a></h2><p>We next explore more flexible models, focusing on tree‑based ensembles such as <strong>Random Forests</strong> and
-<strong>Gradient Boosting</strong>. These methods can capture non‑linear relationships and interactions between features, which is
-often beneficial for tabular data like this.</p>
-<p>To keep the search space manageable, we run a small grid search over a handful of hyperparameters (e.g., number of
-trees, maximum depth, learning rate). This allows us to improve performance without hand‑tuning individual models too
-aggressively on the validation set. For each model we record metrics such as accuracy, F1, and ROC AUC so that we can
-compare them to the baselines and to one another.</p>
+<h2 id="7.-Tree-ensembles">7. Tree ensembles<a class="anchor-link" href="#7.-Tree-ensembles">¶</a></h2><p>Next we try <strong>random forest</strong> and <strong>gradient boosting</strong>, which can capture non-linear interactions between features. Each is tuned with a small 3-fold <code>GridSearchCV</code> over the training set, optimizing F1, then evaluated on the validation set.</p>
 </div>
 </div>
 </div>
@@ -8793,18 +9031,55 @@ weighted avg       0.71      0.71      0.71       319
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="8.-Final-model-selection-and-test-performance">8. Final model selection and test performance<a class="anchor-link" href="#8.-Final-model-selection-and-test-performance">¶</a></h2><p>Based on validation performance we select the strongest model (in this run, a tree‑based ensemble) and then evaluate it
-once on the held‑out test set. The key metrics are:</p>
-<ul>
-<li><strong>Accuracy:</strong> overall fraction of correct predictions.</li>
-<li><strong>Precision / recall / F1:</strong> how well we identify successful games while balancing false positives and false
-negatives.</li>
-<li><strong>ROC AUC:</strong> probability that the model ranks a randomly chosen successful game higher than a randomly chosen
-unsuccessful one.</li>
-</ul>
-<p>On the test set the chosen model achieves roughly 0.73 accuracy, 0.68 F1, and 0.80 ROC AUC, indicating that it can
-distinguish successful from unsuccessful games substantially better than chance and better than the simple logistic
-regression baseline.</p>
+<h2 id="8.-Final-model-and-test-performance">8. Final model and test performance<a class="anchor-link" href="#8.-Final-model-and-test-performance">¶</a></h2><p><strong>Validation results</strong></p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Accuracy</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1</th>
+<th>ROC AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Majority class</td>
+<td>0.555</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.500</td>
+</tr>
+<tr>
+<td>Logistic regression</td>
+<td><strong>0.743</strong></td>
+<td>0.695</td>
+<td><strong>0.754</strong></td>
+<td><strong>0.723</strong></td>
+<td><strong>0.817</strong></td>
+</tr>
+<tr>
+<td>Random forest (tuned)</td>
+<td>0.734</td>
+<td><strong>0.728</strong></td>
+<td>0.641</td>
+<td>0.682</td>
+<td>0.791</td>
+</tr>
+<tr>
+<td>Gradient boosting (tuned)</td>
+<td>0.715</td>
+<td>0.689</td>
+<td>0.655</td>
+<td>0.671</td>
+<td>0.805</td>
+</tr>
+</tbody>
+</table>
+<p>Every model clearly beats the majority baseline. Notably, the simple logistic regression matched or beat both tuned ensembles on validation, which is common with sparse TF-IDF features where a well-regularized linear model is hard to beat.</p>
+<p>The cell below refits gradient boosting on train + validation and evaluates it <strong>once</strong> on the held-out test set, reaching about 0.73 accuracy, 0.68 F1, and 0.80 ROC AUC. Given the validation results, logistic regression would also be a reasonable final choice; evaluating it on the test set alongside gradient boosting is a natural next step.</p>
 </div>
 </div>
 </div>
@@ -8924,17 +9199,12 @@ recommendation and user‑generated feedback.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="10.-Error-analysis-and-discussion">10. Error analysis and discussion<a class="anchor-link" href="#10.-Error-analysis-and-discussion">¶</a></h2><p>The code cells in this section attach predictions back to the test set and make it easy to inspect individual mistakes.
-A few useful qualitative checks:</p>
+<h2 id="10.-Error-analysis">10. Error analysis<a class="anchor-link" href="#10.-Error-analysis">¶</a></h2><p>The cell below attaches test-set predictions back to the full game records so individual mistakes can be inspected:</p>
 <ul>
-<li>Look at <strong>false positives</strong> (games predicted to be successful that are not labeled as such). Are these cases with
-very few reviews, borderline positive shares, or unusual metadata?</li>
-<li>Look at <strong>false negatives</strong> (games labeled successful that the model misses). Do they share certain properties
-(e.g., older release year, atypical price, niche genres) that are hard for the current features to capture?</li>
-<li>Examine how performance changes if you adjust the success threshold or require a larger minimum number of reviews.</li>
+<li><strong>False positives:</strong> games predicted successful that are labeled unsuccessful</li>
+<li><strong>False negatives:</strong> games labeled successful that the model misses</li>
 </ul>
-<p>These analyses help you understand <strong>when and why</strong> the model fails, and can suggest concrete next steps such as adding
-richer features (e.g., text embeddings of the review content) or trying alternative model families.</p>
+<p>Many misses are games with only a handful of reviews, where a single review can flip the label. That label noise caps how well any launch-time model can do. Raising the minimum review count, or adding developer/publisher history and learned text embeddings, are the most promising next steps.</p>
 </div>
 </div>
 </div>
